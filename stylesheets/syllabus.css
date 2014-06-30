@@ -1,0 +1,15 @@
+h1 {margin-bottom: 3;}
+
+#syllabus {
+	height:9.5in;
+	width: 6.5in;
+	background-color: white; 
+	margin-left: 300px;
+	margin-right: 200px;
+	margin-top: 50px;
+	padding: 1in;
+}
+
+.week {
+	font-size: 2em;
+}
