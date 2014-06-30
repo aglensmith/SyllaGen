@@ -1,0 +1,4 @@
+syllagen
+========
+
+a syllabus generator
