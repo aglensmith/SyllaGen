@@ -4,7 +4,7 @@ from datetime import date, timedelta, datetime
 import webapp2
 import jinja2
 
-#joints this file with the template.html file
+#joins this file with the template.html file
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 
 #instatiates jinja environment, uses filesystem loader using template_dir variable
