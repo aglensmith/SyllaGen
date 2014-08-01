@@ -1,8 +1,8 @@
 from datetime import date, timedelta, datetime
-from syllabus import Syllabus
+from syllabus import *
 
 def test_makedate_string():
-	assert Syllabus.makedate('2014-08-25') == datetime.strptime('2014-08-25', '%Y-%m-%d')
+	assert Syl.makedate('2014-08-25') == datetime.strptime('2014-08-25', '%Y-%m-%d')
 def test_makedate_empty():	
 	assert Syllabus.makedate('') == None
 def test_makedate_list():

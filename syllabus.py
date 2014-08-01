@@ -85,7 +85,7 @@ class Syllabus(object):
 	def groupweek(self, week, a_or_b_day):
 		"""Return a list of days from from either a or b days whos week number
 		equals the given week number"""
-		return [day for day in a_or_b_day if int(self.weeknum(day)) == week]
+		return [self.makestr(day) for day in a_or_b_day if int(self.weeknum(day)) == week]
 		
 	def prls(self, ls):
 		for i in ls:
