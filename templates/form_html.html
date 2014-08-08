@@ -8,46 +8,44 @@
 
 </head>
 <body>
-	<div id="form">
+	<div id="formdiv">
 		<br>
 		<br>
-		<form method="post" style=" height: 100%; margin: 10px;">
+		<form id="form" method="post">	
+			<fieldset>
+				<legend>Term begin/end</legend>
+				<input class="inputs" type="date" name="begin_date" size="15" placeholder="First Day of Term" value="{{begin_date}}">
+				<input class="inputs" type="date" name="end_date" value="{{end_date}}">
+			</fieldset>
+			<br>
+			<fieldset>
+				<legend>Non-instructional Days</legend>
+				<input class="inputs" type="date" name="holiday1" value="{{holiday1}}">
+				<input class="inputs" type="date" name="holiday2" value="{{holiday2}}">
+				<input class="inputs" type="date" name="holiday3" value="{{holiday3}}">
 				
-				
-				<label>Begin Date</label>
-				<input type="date" name="begin_date" size="15">
-				
-				<p>
-				<label>End Date</label>
-				<input type="date" name="end_date">
-				</p>
-				<br>
-				<p>
-				<label>Holidays</label>
-				<input type="date" name="holiday1">
-				</p>
-				
-				<p>
-				<input type="date" name="holiday2">
-				</p>
-				
-				<p>
-				<input type="date" name="holiday3">
-				</p>
-				
-				<br>
-				<p>
-				<label>Extended Holiday: begin</label>
-				<input type="date" name="holiday_begin">
-				</p>
-				
-				<p>
-				<label>Extended Holiday: end</label>
-				<input type="date" name="holiday_end">
-				</p>
-				
-				<input type = "submit" style="width: 155px; border-radius: 10px; background-color: #FFE5AA; height: 40px;">
-				<div style="color: red">{% print error_message %}</div>
+				<label>Extended begin/end</label>
+				<input class="inputs" type="date" name="holiday_begin" value="{{holiday_begin}}">
+				<input class="inputs" type="date" name="holiday_end" value="{{holiday_end}}">
+			</fieldset>
+			<br>
+			<fieldset>					
+				<legend>Formatting</legend>
+				<select class="inputs" name="schedule">
+					<option value="a" {{selecta}}>A Day</option>
+					<option value="b" {{selectb}}>B Day</option>
+					<option value="c"{{selectc}}> Non-Alternating</option>
+				</select>
+					
+				<select class="inputs" name="format">
+					<option value="sidebyside.html" {{format1}}>Side by Side</option>
+					<option value="table.html" {{format2}}>Table</option>
+					<option value="plaintext.html" {{format3}}>Plain Text</option>
+				</select>
+				</fieldset>
+			<br>
+			<input type = "submit" style="width: 180px; background-color: #FFE5AA; height: 40px;">
+			<div style="color: red"><b>{% print error_message %}<b></div>
 		</form>
 	</div>
 </body>

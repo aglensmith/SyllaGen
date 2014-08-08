@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head><link rel="stylesheet" href="/stylesheets/syllabus.css" /></head>
+
+<body>
+
+<div id="paper">
+<div id="content">
+<b><u><font id="title"><div align=center>[#] Six Weeks [{{schedule}}] Syllabus</div></font></b></u>
+<br>
+<table id="table" align="center" border="1" cellpadding="1" cellspacing="1">
+		<tr>
+			<td><b>Date</b></td>
+			<td><b>Topic</b></td>
+			<td><b>Assignment</b></td>
+			<td><b>Due</b></td>
+		</tr>
+		{% for day in syllabus %}
+		<tr>
+			<td><b>{{day}}</b></td>
+			<td>[Lesson/Chapter/Section]</td>
+			<td>[Worksheet/Pages/Homework]</td>
+			<td>[date]</td>
+		</tr>
+		{%endfor%}
+</table>
+</div>
+</div>
+</body>
+</html>

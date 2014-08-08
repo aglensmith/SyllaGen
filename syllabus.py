@@ -3,26 +3,21 @@ from datetime import date, timedelta, datetime
 
 class Syllabus(object):
 	
-	def __init__(self, begin_date, end_date):
-
-		self.begin_date = self.makedate(begin_date)
-		self.end_date = self.makedate(end_date)
+	def __init__(self):
+		self.begin_date = ''
+		self.end_date = ''
 		self.holidays = []
 		self.exthol = []
-		self.term_days = self.gentrm()
-		self.adays = self.altsched('a')
-		self.bdays = self.altsched('b')
-		self.a = self.weeks(self.adays)
-		self.b = self.weeks(self.bdays)
+ 
 		
 	def update(self):
 		"""updates the object attrs (used when holidays are added/removed)"""
 		self.term_days = self.gentrm()
 		self.adays = self.altsched('a')
 		self.bdays = self.altsched('b')
-		self.a = self.weeks(self.adays)
-		self.b = self.weeks(self.bdays)
-		
+		self.a = self.week_list(self.adays)
+		self.b = self.week_list(self.bdays)
+	
 	def makedate(self, arg):
 		if isinstance(arg, str) and len(arg) > 0:
 			return datetime.strptime(arg, '%Y-%m-%d')
@@ -76,11 +71,11 @@ class Syllabus(object):
 		if alt == 'b':
 			return term_days[1::2]
 			
-	def weeks(self, day):
+	def week_list(self, schedule):
 		"""Return a list of lists of a or b day days grouped into weeks"""
-		weeks = list(set([self.weeknum(i) for i in day]))
+		weeks = list(set([self.weeknum(i) for i in schedule]))
 		weeks.reverse()
-		return [self.groupweek(int(week), day) for week in weeks]
+		return [self.groupweek(int(week), schedule) for week in weeks]
 				
 	def groupweek(self, week, a_or_b_day):
 		"""Return a list of days from from either a or b days whos week number
@@ -90,9 +85,21 @@ class Syllabus(object):
 	def prls(self, ls):
 		for i in ls:
 			print i
-		
-Syl = Syllabus('2014-08-25', '2014-10-03')
+			
+class Table(Syllabus):
+	
+	def update(self):
+		"""updates the object attrs (used when holidays are added/removed)"""
+		self.term_days = self.gentrm()
+		self.adays = self.altsched('a')
+		self.bdays = self.altsched('b')
+		self.a = self.adays
+		self.b = self.adays
 
+bleep = Syllabus()
+bleep.begin_date=bleep.makedate('2014-08-25')
+bleep.end_date = bleep.makedate('2014-10-03')
+bleep.update()
 # [[week, day, day, day],[week, day, day]]
 #Syllabus = Syllabus('2014-08-25', '2014-10-03', '2014-09-08', '2014-09-12')
 #for i in x:

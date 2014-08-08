@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head><link rel="stylesheet" href="/stylesheets/syllabus.css" /></head>
+
+<body>
+
+<div id="paper">
+	<table align="center" style="width: 6.5in">
+		<tr>	
+		<td align="center" colspan="2">			
+		<b><u><font id="title">[#] Six Weeks [{{schedule}}] Syllabus</font> </b></u>
+		</td>		
+		</tr>	
+		</td>
+		<tr>
+			<td valign="top">	
+				<br>
+				{% for week in syllabus[0:(syllabus|length/2)|int ]%}
+				<font class="week">Week {% print syllabus.index(week) + 1 %}</font>
+				{% for day in week %}
+				<br>&nbsp;&nbsp;&nbsp;&nbsp;<b>{% print day %}</b>
+				<br>&nbsp;&nbsp;&nbsp;&nbsp;assignment
+				<br>&nbsp;&nbsp;&nbsp;&nbsp;assignment
+				<br>
+				{%endfor%}
+				{%endfor%}	
+			</td>
+			
+			<td valign="top">
+				<br>
+				{% for week in syllabus[(syllabus|length/2)|int:syllabus|length]%}
+				<font class="week">Week {% print syllabus.index(week) + 1 %}</font>
+				{% for day in week %}
+				<br>&nbsp;&nbsp;&nbsp;&nbsp;<b>{% print day %}</b>
+				<br>&nbsp;&nbsp;&nbsp;&nbsp;assignment
+				<br>&nbsp;&nbsp;&nbsp;&nbsp;assignment
+				<br>
+				{%endfor%}
+				{%endfor%}		
+			</td>
+		</tr>
+	</table>
+</div>
+</body>
+</html>

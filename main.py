@@ -1,269 +1,224 @@
 import os
 
 from datetime import date, timedelta, datetime
+import syllabus
 import webapp2
 import jinja2
 
-#joins this file with the template.html file
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 
-#instatiates jinja environment, uses filesystem loader using template_dir variable
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
-def generate_ext_holiday(holiday_begin, holiday_end):
-	
-	ext_holiday = []
-	for i in range(datetime.toordinal(holiday_begin), datetime.toordinal(holiday_end)):
-		ext_holiday.append(datetime.fromordinal(i))
-		return ext_holiday
-	
-def strptime(date_string):
-	date_object = datetime.strptime(date_string, '%Y-%m-%d')
-	return date_object
-	
-def weeknum(dateobject):
-	dateobject = dateobject
-	week_number = dateobject.strftime('%W')
-	return str(week_number)
-	
-def weeknumlist(dates):
-	dates = dates
-	weeks_list = []
-	
-	for i in dates:
-		if weeknum(i) not in weeks_list:
-			weeks_list.append(str(weeknum(i)))
-	return weeks_list
+#Add Non-alternating schedule feature
 
-def weekdict(black_dates, gold_dates):
-	
-	black_dates = black_dates
-	gold_dates = gold_dates
-		
-	black_dict ={}
-	for i in range(len(black_dates)):	
-		week_number = weeknum(black_dates[i])
-		if week_number not in black_dict:
-			black_dict[week_number] = []
-		black_dict[week_number].append(black_dates[i].strftime("%A, %m/%d"))
-		
-	gold_dict ={}
-	for i in range(len(gold_dates)):	
-		week_number = weeknum(gold_dates[i])
-		if week_number not in gold_dict:
-			gold_dict[week_number] = []
-		gold_dict[week_number].append(gold_dates[i].strftime("%A, %m/%d"))
-		
-	return black_dict, gold_dict
-
-def generate_syllabi(dates_from_user):
-	
-	begin_date = dates_from_user[0]
-	end_date = dates_from_user[1]
-	holiday_list = dates_from_user[2]
-	ext_holiday = dates_from_user[3]
-	
-	if ext_holiday:
-		ext_holiday = generate_ext_holiday(ext_holiday[0], ext_holiday[1])
-	
-	for i in ext_holiday:
-		holiday_list.append(i)
-	
-	# holiday_list.append(datetime(2014, 9, 1))
-	
-	x = 0
-	delta = timedelta(days=x)
-	next_date = begin_date + delta
-	syl_list = []
-	
-	while next_date != end_date:
-		delta = timedelta(days=x)
-		next_date = begin_date + delta
-		
-		if (date.weekday(next_date) < 5) and (next_date not in holiday_list):
-			syl_list.append(next_date)
-		x +=1
-		
-
-	black_syl = []
-	gold_syl = []
-
-
-	for i in syl_list[::2]:
-		black_syl.append(i)
-
-	for i in syl_list[1::2]:
-		gold_syl.append(i)
-		
-	return black_syl, gold_syl	
 
 class Handler(webapp2.RequestHandler):
 	
 	def write(self, *a, **kw):
 		self.response.out.write(*a, **kw)
 	
-	#takes a filename and extra parameters, uses get_template function to get template.html,
-	#then uses render() to render the .html with the given parameters
 	def render_str(self, template, **params):
 		t = jinja_env.get_template(template)
 		return t.render(params)
 		
-	#sends the rendered string to the browser with the given template.html file and parameters
 	def render(self, template, *args, **kw):
 		self.write(self.render_str(template, **kw))
 		
 	def render_date_form(self, error):
 		self.render("form_html.html")
+				
+	def getdates(self):
 		
-	def valid_dates(self, date_string_list):	
+		#alter this function to return a dictionary instead of a list
+		begin_date = str(self.request.get('begin_date'))
+		end_date = str(self.request.get('end_date'))
+		holiday1 = str(self.request.get('holiday1'))
+		holiday2 = str(self.request.get('holiday2'))
+		holiday3 = str(self.request.get('holiday3'))
+		holiday_begin = str(self.request.get('holiday_begin'))
+		holiday_end = str(self.request.get('holiday_end'))
 		
-		begin_string = date_string_list[0]
-		end_string = date_string_list[1]
+		dates = []
+		dates.append(begin_date)
+		dates.append(end_date)
 		
+		for i in [holiday1, holiday2, holiday3, holiday_begin, holiday_end]:
+			if i:
+				dates.append(i)
+		
+		return dates
+	
+	def error_check(self):	
+		"""checks if dates entered raise an error; returns true or false"""
+		Syltest = syllabus.Syllabus()
+		datestrs = self.getdates()
+
 		valid = ' '
 		no_error = True
 		in_range = True
 		error = ' '
 		
 		try:
-			date_objects = self.convert_dates(date_string_list)
-		except ValueError:
+			for i in datestrs:
+				datetime.strptime(i, '%Y-%m-%d')
+		except (ValueError, TypeError, OverflowError) as e:
 			no_error = False
-			error = 'ValueError'
-		except TypeError:
-			no_error = False
-			error = 'TypeError'
-		except OverflowError:
-			no_error = False
-			error = 'OverflowError'
-			
-		if no_error == True:
-			
-			begin_date = strptime(begin_string)
-			end_date = strptime(end_string)
-			
-			if datetime.toordinal(begin_date) > datetime.toordinal(end_date):
-				in_range = False
-				error = 'begin_date > end_date'
-			elif datetime.toordinal(end_date) - datetime.toordinal(begin_date) > 100:
-				in_range = False
-				error = 'end date - begin date > 100 days'
+			error = e
+		
+		return no_error, error
 				
+	def in_range(self):
+		"""checks that dates are valid; returns true or false"""
+		#Possibly get rid of getdates() function -- just do request.get when necessary.
+		datestrs = self.getdates()
+		begin_date = datetime.strptime(datestrs[0], '%Y-%m-%d')
+		end_date = datetime.strptime(datestrs[1], '%Y-%m-%d')
 		
-		if (no_error == True) and (in_range == True):
-			return True, error
+		
+		#make function for this so that both begin_date/end_date & holiday_begin/holiday_end
+		#can use it.
+		if datetime.toordinal(begin_date) > datetime.toordinal(end_date):
+			in_range = False
+			error = 'Error: begin date should come before end date'
+		elif datetime.toordinal(end_date) - datetime.toordinal(begin_date) > 100:
+			in_range = False
+			error = 'Error: begin date & end date too far apart'
 		else:
-			return False, error
-							
-	def get_date_strings(self):
-		date_string_list = []
-		holiday_list = []
-		ext_holiday_list = []
-		begin_date = self.request.get('begin_date')
-		end_date = self.request.get('end_date')
-		
-		holiday1 = self.request.get('holiday1')
-		holiday2 = self.request.get('holiday2')
-		holiday3 = self.request.get('holiday3')
+			in_range = True
+			error = ''
+			
+		#for extended holiday
 		
 		holiday_begin = self.request.get('holiday_begin')
 		holiday_end = self.request.get('holiday_end')
 		
-		if holiday1:
-			holiday_list.append(holiday1)
-		if holiday2:
-			holiday_list.append(holiday2)
-		if holiday3:
-			holiday_list.append(holiday3)
-		if holiday_begin:
-			ext_holiday_list.append(holiday_begin)
-		if holiday_end:
-			ext_holiday_list.append(holiday_end)
-			
-		date_string_list.append(begin_date)
-		date_string_list.append(end_date)
-		date_string_list.append(holiday_list)
-		date_string_list.append(ext_holiday_list)
+		if (holiday_begin and holiday_end) and in_range == True:
+			holiday_begin = datetime.strptime(holiday_begin, '%Y-%m-%d')
+			holiday_end = datetime.strptime(holiday_end, '%Y-%m-%d')
+			if datetime.toordinal(holiday_begin) > datetime.toordinal(holiday_end):
+				in_range = False
+				error = 'begin_date > end_date'
+			elif datetime.toordinal(holiday_end) - datetime.toordinal(holiday_begin) > 100:
+				in_range = False
+				error = 'Error: Holiday length too long'
+			else:
+				in_range = True
+				error = ''
 		
-		return date_string_list
+				
+		return in_range, error
 	
-	def convert_dates(self, date_string_list):
+	def valid_dates(self):
 		
-		begin_date = date_string_list[0]
-		end_date = date_string_list[1]
+		no_error, error = self.error_check()
+		in_range, message = self.in_range()
+		error_message = error + message
 		
-		holiday_list = []
-		for i in date_string_list[2]:
-			i = datetime.strptime(i, '%Y-%m-%d')
-			holiday_list.append(i)
+		if in_range and no_error:
 		
-		ext_holiday = []
-		for i in date_string_list[3]:
-			i = datetime.strptime(i, '%Y-%m-%d')
-			ext_holiday.append(i)
-			
-		begin_date = datetime.strptime(begin_date, '%Y-%m-%d')
-		end_date = datetime.strptime(end_date, '%Y-%m-%d')
+			Syl = self.make_syl()
+			Syl.update()
+		if self.no_errors() and self.in_range():
+			return True
+		else:
+			return False
+				
+	def make_syl(self):
+		"""gets the date strings from the html form, instatiates a syllabus object and return its"""
+		Syl = syllabus.Syllabus()
+		Syl.begin_date = Syl.makedate(str(self.request.get('begin_date')))
+		Syl.end_date = Syl.makedate(str(self.request.get('end_date')))
+		Syl.add_holiday(str(self.request.get('holiday1')), 
+		str(self.request.get('holiday2')), str(self.request.get('holiday3')))
 		
-		dates = []
-		dates.append(begin_date)
-		dates.append(end_date)
-		dates.append(holiday_list)
-		dates.append(ext_holiday)
-		return dates
-			
+		if self.request.get('holiday_begin') and self.request.get('holiday_end'):
+			Syl.add_exthol(str(self.request.get('holiday_begin')), str(self.request.get('holiday_end')))
+		return Syl
+
 class MainPage(Handler):
 	
 	def get(self):
 		self.render('form_html.html')
 		
 	def post(self):
+		#working on adding error handling and validation
 		
-		date_strings_list = self.get_date_strings()
-			
-		all_dates_valid, error = self.valid_dates(date_strings_list)
-		
-		if all_dates_valid == True:
-			
-			date_objects = self.convert_dates(date_strings_list)
-		
-			black_dates, gold_dates = generate_syllabi(date_objects)
-			
-			black_week_list = weeknumlist(black_dates)
-			gold_week_list = weeknumlist(gold_dates)
-			
-			black_syl, gold_syl = weekdict(black_dates, gold_dates)
-			
-			self.render('form_html.html')
-			self.render('syllabus_html.html', 
-						black_syl=black_syl, 
-						gold_syl=gold_syl,
-						black_week_list=black_week_list,
-						gold_week_list=gold_week_list)		
-		
-		error_message = 'Invalid dates: %s.' % error
-		if all_dates_valid == False:
-				self.render('form_html.html', error_message=error_message)
-				date_strings_list = self.get_date_strings()
-				all_dates_valid = self.valid_dates(date_strings_list)
-						
-class SyllabusHandler(Handler):
 
-	def post(self):
+		begin_date = self.request.get('begin_date')
+		end_date = self.request.get('end_date')
+		holiday1 = self.request.get('holiday1')
+		holiday2 = self.request.get('holiday2')
+		holiday3 = self.request.get('holiday3')
+		holiday_begin = self.request.get('holiday_begin')
+		holiday_end = self.request.get('holiday_end')
+		schedule = self.request.get('schedule')
 		
-		date_strings = self.get_date_strings()	
-		dates = self.convert_dates(date_strings)
-		black_dates, gold_dates = generate_syllabi(dates)
+		no_error, error = self.error_check()
+		in_range = True
 		
-		black_week_list = weeknumlist(black_dates)
-		gold_week_list = weeknumlist(gold_dates)
+		if no_error == True:
+			in_range, error = self.in_range()
+
+		if in_range == True and no_error == True:
 		
-		black_syl, gold_syl = weekdict(black_dates, gold_dates)
-		
-		self.render('syllabus_html.html', 
-					black_syl=black_syl, 
-					gold_syl=gold_syl,
-					black_week_list=black_week_list,
-					gold_week_list=gold_week_list)
-		
-app = webapp2.WSGIApplication([('/', MainPage), ('/syllabus', SyllabusHandler)], debug=True)
+			Syl = self.make_syl()
+			Syl.update()
+			
+			selecta = ''
+			selectb = ''
+			selectc = ''
+			
+			format1 = ''
+			format2 = ''
+			format3 = ''
+			
+			format = self.request.get('format')
+			
+			if format == 'sidebyside.html':
+				format1 = 'selected'
+				if schedule == 'a':
+					syllabus = Syl.a
+					selecta = 'selected'
+				if schedule == 'b':
+					syllabus = Syl.b
+					selectb = 'selected'
+				elif schedule != 'a' and 'b':
+					syllabus = [Syl.makestr(i) for i in Syl.term_days]
+					selectc = 'selected'
+					format = 'table.html'
+			if format == 'table.html':
+				format2 = 'selected'
+				if schedule == 'a':
+					syllabus = [Syl.makestr(i) for i in Syl.adays]
+					selecta = 'selected'
+				if schedule == 'b':
+					syllabus = [Syl.makestr(i) for i in Syl.bdays]
+					selectb = 'selected'
+				elif schedule != 'a' and 'b':
+					syllabus = [Syl.makestr(i) for i in Syl.term_days]
+					selectc = 'selected'
+			if format == 'plaintext.html':
+				format3 = 'selected'
+				if schedule == 'a':
+					syllabus = [Syl.makestr(i) for i in Syl.adays]
+					selecta = 'selected'
+				if schedule == 'b':
+					syllabus = [Syl.makestr(i) for i in Syl.bdays]
+					selectb = 'selected'
+				elif schedule != 'a' and 'b':
+					syllabus = [Syl.makestr(i) for i in Syl.term_days]
+					selectc = 'selected'
+				
+			self.render('form_html.html', begin_date=begin_date, end_date=end_date, 
+			holiday1=holiday1,holiday2=holiday2, holiday3=holiday3, 
+			holiday_begin=holiday_begin, holiday_end=holiday_end, selecta=selecta, 
+			selectb=selectb, selectc=selectc, format1=format1, format2=format2, format3=format3)
+			
+			self.render(format, syllabus=syllabus, schedule=schedule)
+		else:
+			self.render('form_html.html', error_message=error, begin_date=begin_date, end_date=end_date, 
+			holiday1=holiday1,holiday2=holiday2, holiday3=holiday3, 
+			holiday_begin=holiday_begin, holiday_end=holiday_end)
+							
+
+app = webapp2.WSGIApplication([('/', MainPage)], debug=True)

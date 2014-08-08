@@ -1,15 +1,31 @@
 h1 {margin-bottom: 3;}
 
-#syllabus {
+#paper {
 	height:9.5in;
 	width: 6.5in;
 	background-color: white; 
 	margin-left: 300px;
 	margin-right: 200px;
 	margin-top: 50px;
-	padding: 1in;
+	padding: .5in;
+	box-shadow: 0px 8px 20px 0px #172557;
+}
+
+#table {
+
+	width: 6.5in;
+
+}
+
+#title {
+	font-size: 2em;
+	font-weight: bold;
+	text-decoration: underline;
 }
 
 .week {
-	font-size: 2em;
+	font-size: 1.5em;
+	font-weight: bold;
+	margin: 0px;
+	padding: 0px;
 }

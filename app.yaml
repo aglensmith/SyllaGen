@@ -1,4 +1,4 @@
-application: trusty-magnet-608
+application: syllagen
 version: 1
 runtime: python27
 api_version: 1
