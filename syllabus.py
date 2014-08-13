@@ -1,6 +1,5 @@
 from datetime import date, timedelta, datetime
 
-
 class Syllabus(object):
 	
 	def __init__(self):
@@ -9,7 +8,6 @@ class Syllabus(object):
 		self.holidays = []
 		self.exthol = []
 	 
-		
 	def update(self):
 		"""updates the object attrs (used when holidays are added/removed)"""
 		self.term_days = self.gentrm()
@@ -76,26 +74,22 @@ class Syllabus(object):
 		syl = []
 		for day in schedule:
 			if self.weeknum(day) != self.weeknum(schedule[schedule.index(day)-1]):
-				syl.append(self.grpwk(day))
+				syl.append(self.grpwk(day, schedule))
 		return syl
 		
-		#weeks = list(set([self.weeknum(i) for i in schedule]))
-		#weeks.reverse()
-		#return [self.groupweek(int(week), schedule) for week in weeks]
-				
 	def groupweek(self, week, a_or_b_day):
 		"""Return a list of days from from either a or b days whos week number
 		equals the given week number"""
 		return [self.makestr(day) for day in a_or_b_day if int(self.weeknum(day)) == week]
 		
-	def grpwk(self, day):
-		return [self.makestr(i) for i in self.adays if self.weeknum(i) == self.weeknum(day)] 
+	def grpwk(self, day, schedule):
+		return [self.makestr(i) for i in schedule if self.weeknum(i) == self.weeknum(day)] 
  
-			
 	def prls(self, ls):
 		for i in ls:
 			print i
 			
+            
 class Table(Syllabus):
 	
 	def update(self):
@@ -105,14 +99,3 @@ class Table(Syllabus):
 		self.bdays = self.altsched('b')
 		self.a = self.adays
 		self.b = self.adays
-
-
-#syl = Syllabus()
-#syl.begin_date = syl.makedate('2014-10-06')
-#syl.end_date = syl.makedate('2014-11-14')
-#syl.update()
-# [[week, day, day, day],[week, day, day]]
-#Syllabus = Syllabus('2014-08-25', '2014-10-03', '2014-09-08', '2014-09-12')
-#for i in x:
-#	i = int(i) - (int(x[0]) - 1)
-#	print i

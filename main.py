@@ -133,8 +133,10 @@ class Handler(webapp2.RequestHandler):
 		
 		if self.request.get('holiday_begin') and self.request.get('holiday_end'):
 			Syl.add_exthol(str(self.request.get('holiday_begin')), str(self.request.get('holiday_end')))
+		if self.request.get('holiday_begin2') and self.request.get('holiday_end2'):
+			Syl.add_exthol(str(self.request.get('holiday_begin2')), str(self.request.get('holiday_end2')))
 		return Syl
-
+      
 class MainPage(Handler):
 	
 	def get(self):
@@ -142,7 +144,6 @@ class MainPage(Handler):
 		
 	def post(self):
 		#working on adding error handling and validation
-		
 
 		begin_date = self.request.get('begin_date')
 		end_date = self.request.get('end_date')
@@ -151,11 +152,12 @@ class MainPage(Handler):
 		holiday3 = self.request.get('holiday3')
 		holiday_begin = self.request.get('holiday_begin')
 		holiday_end = self.request.get('holiday_end')
+		holiday_begin2 = self.request.get('holiday_begin2')
+		holiday_end2 = self.request.get('holiday_end2')
 		schedule = self.request.get('schedule')
-		
 		no_error, error = self.error_check()
 		in_range = True
-		
+
 		if no_error == True:
 			in_range, error = self.in_range()
 
@@ -211,7 +213,8 @@ class MainPage(Handler):
 				
 			self.render('form_html.html', begin_date=begin_date, end_date=end_date, 
 			holiday1=holiday1,holiday2=holiday2, holiday3=holiday3, 
-			holiday_begin=holiday_begin, holiday_end=holiday_end, selecta=selecta, 
+			holiday_begin=holiday_begin, holiday_end=holiday_end,
+            holiday_begin2 = holiday_begin2 , holiday_end2=holiday_end2, selecta=selecta, 
 			selectb=selectb, selectc=selectc, format1=format1, format2=format2, format3=format3)
 			
 			self.render(format, syllabus=syllabus, schedule=schedule)
