@@ -9,8 +9,6 @@ template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
-#Add Non-alternating schedule feature
-
 
 class Handler(webapp2.RequestHandler):
 	
@@ -27,6 +25,8 @@ class Handler(webapp2.RequestHandler):
 	def render_date_form(self, error):
 		self.render("form_html.html")
 				
+	
+	#Gets to the dates input by the user
 	def getdates(self):
 		
 		#alter this function to return a dictionary instead of a list
@@ -48,8 +48,9 @@ class Handler(webapp2.RequestHandler):
 		
 		return dates
 	
+	#checks if dates entered raise an error; returns true or false
 	def error_check(self):	
-		"""checks if dates entered raise an error; returns true or false"""
+		
 		Syltest = syllabus.Syllabus()
 		datestrs = self.getdates()
 
@@ -67,13 +68,13 @@ class Handler(webapp2.RequestHandler):
 		
 		return no_error, error
 				
+	#checks that dates are valid; returns true or false
 	def in_range(self):
-		"""checks that dates are valid; returns true or false"""
+	
 		#Possibly get rid of getdates() function -- just do request.get when necessary.
 		datestrs = self.getdates()
 		begin_date = datetime.strptime(datestrs[0], '%Y-%m-%d')
 		end_date = datetime.strptime(datestrs[1], '%Y-%m-%d')
-		
 		
 		#make function for this so that both begin_date/end_date & holiday_begin/holiday_end
 		#can use it.
@@ -88,7 +89,6 @@ class Handler(webapp2.RequestHandler):
 			error = ''
 			
 		#for extended holiday
-		
 		holiday_begin = self.request.get('holiday_begin')
 		holiday_end = self.request.get('holiday_end')
 		
@@ -122,9 +122,10 @@ class Handler(webapp2.RequestHandler):
 			return True
 		else:
 			return False
-				
+	
+	#gets the date strings from the html form, returns syllabus object		
 	def make_syl(self):
-		"""gets the date strings from the html form, instatiates a syllabus object and return its"""
+	
 		Syl = syllabus.Syllabus()
 		Syl.begin_date = Syl.makedate(str(self.request.get('begin_date')))
 		Syl.end_date = Syl.makedate(str(self.request.get('end_date')))
@@ -143,8 +144,7 @@ class MainPage(Handler):
 		self.render('form_html.html')
 		
 	def post(self):
-		#working on adding error handling and validation
-
+		
 		begin_date = self.request.get('begin_date')
 		end_date = self.request.get('end_date')
 		holiday1 = self.request.get('holiday1')
